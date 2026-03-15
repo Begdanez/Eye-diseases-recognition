@@ -67,7 +67,8 @@ checkpoints/
 ├── best_model.pth       # Веса лучшей модели
 ├── class_names.json     # Маппинг индекс → имя класса
 ├── history.json         # Loss и accuracy по эпохам
-└── confusion_matrix.npy # Матрица ошибок
+└── confusion_matrix.png # Матрица ошибок
+└── training_curves.png  # Кривые тренировки
 ```
 
 ---
