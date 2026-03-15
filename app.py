@@ -1,14 +1,3 @@
-"""
-app.py — Retinal OCT Disease Recognition App
-=============================================
-Run:  python app.py
-      python app.py --model checkpoints/best_model.pth
-                    --classes checkpoints/class_names.json
-
-Requires:
-  pip install gradio torch torchvision pillow matplotlib
-"""
-
 import argparse
 import json
 import os

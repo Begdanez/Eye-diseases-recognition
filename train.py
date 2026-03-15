@@ -1,28 +1,3 @@
-"""
-train.py — Retinal OCT-C8 Disease Classification
-================================================
-Dataset  : https://www.kaggle.com/datasets/obulisainaren/retinal-oct-c8
-Classes  : AMD, CNV, CSR, DME, DR, Drusen, MH, Normal  (8 classes)
-Backbone : EfficientNet-B3 (pretrained on ImageNet)
-Framework: PyTorch + torchvision
-
-Usage
------
-  python train.py --data_dir /path/to/RetinalOCT_Dataset \
-                  --epochs 30 \
-                  --batch_size 32 \
-                  --output_dir ./checkpoints
-
-Dataset folder structure expected:
-  RetinalOCT_Dataset/
-    train/
-      AMD/   CNV/   CSR/   DME/   DR/   Drusen/   MH/   Normal/
-    val/
-      ...
-    test/
-      ...
-"""
-
 import argparse
 import os
 import time
