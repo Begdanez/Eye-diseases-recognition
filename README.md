@@ -1,4 +1,4 @@
-[20.03.2026 22:43] Slavyan: <div align="center">
+<div align="center">
 
 # 🔬 Retinal OCT Disease Recognition System
 
