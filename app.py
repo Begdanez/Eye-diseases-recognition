@@ -1,6 +1,18 @@
+"""
+app.py — Retinal OCT Disease Recognition App
+=============================================
+Run:  python app.py
+      python app.py --model checkpoints/best_model.pth
+                    --classes checkpoints/class_names.json
+
+Requires:
+  pip install gradio torch torchvision pillow matplotlib
+"""
+
 import argparse
 import json
 import os
+import socket
 
 import gradio as gr
 import numpy as np
@@ -272,9 +284,20 @@ textarea, .markdown-text {
 
 EXAMPLES_DIR = "examples"  # put sample images here if available
 
+def find_available_port(start_port, max_tries=10):
+    """Find an available port starting from start_port."""
+    for port in range(start_port, start_port + max_tries):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind(('', port))
+                return port
+            except OSError:
+                continue
+    raise OSError(f"No available port found in range {start_port}-{start_port+max_tries-1}")
 
 def build_ui(predict_fn):
-    with gr.Blocks(css=CUSTOM_CSS, title="Retinal OCT Analyzer") as demo:
+    with gr.Blocks(title="Retinal OCT Analyzer") as demo:
+        # CSS will be passed in launch() to avoid Gradio 6.0 warning
 
         # ── Header ──────────────────────────────────
         gr.HTML("""
@@ -378,7 +401,8 @@ def parse_args():
                         help="Path to trained model weights (.pth)")
     parser.add_argument("--classes", type=str, default="checkpoints/class_names.json",
                         help="Path to class_names.json produced by train.py")
-    parser.add_argument("--port",    type=int, default=7860)
+    parser.add_argument("--port",    type=int, default=7860,
+                        help="Port to run the Gradio app on")
     parser.add_argument("--share",   action="store_true",
                         help="Create public Gradio share link")
     return parser.parse_args()
@@ -390,7 +414,6 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}")
 
-    # Load class names
     if os.path.exists(args.classes):
         with open(args.classes) as f:
             class_names = json.load(f)
@@ -399,18 +422,29 @@ def main():
         print("class_names.json not found — using defaults.")
         class_names = DEFAULT_CLASSES
 
-    # Load model
     model = load_model(args.model, len(class_names), device)
 
     predict_fn = make_predict_fn(model, class_names, device)
     demo = build_ui(predict_fn)
 
-    demo.launch(
-        server_port=args.port,
-        share=args.share,
-        show_api=False,
-    )
-
+    max_tries = 50
+    for attempt in range(max_tries):
+        port = args.port + attempt
+        try:
+            demo.launch(
+                server_port=port,
+                share=args.share,
+                css=CUSTOM_CSS,
+            )
+            break
+        except OSError as e:
+            if "Cannot find empty port" in str(e) or "address already in use" in str(e).lower():
+                print(f"Port {port} is busy, trying next port...")
+                continue
+            else:
+                raise
+    else:
+        print(f"Could not find an available port after {max_tries} attempts.")
 
 if __name__ == "__main__":
     main()
